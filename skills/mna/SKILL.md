@@ -49,7 +49,7 @@ Before any research, establish:
 - **Anchors** — the fixed points nothing else can move: a booked flight, an event date, a
   pickup, a hard return-by date.
 - **Party** — who travels, which legs (trips can split), and children's ages, which change room
-  eligibility and price.
+  eligibility and price. Every variant stores this party (see step 3).
 - **Dates** — exact if known, otherwise a window plus a night count.
 - **Budget and home currency** — the ceiling, and the currency every total gets presented in.
   Never infer it from the destination or carry it over from a previous trip.
@@ -89,7 +89,7 @@ Build what the user agreed to, one level at a time:
 | Level | Command | Notes |
 |---|---|---|
 | trip | `mna trips create --name "…"` | the container |
-| variant | `mna variants add <trip> --name "…" --start-date <date> --end-date <date>`, or `variants duplicate <trip> <var>` | a whole-trip **strategy** ("single base" vs "stopover + base"), not a tweak. Dates are required — exact, or the six flexible-date flags (see reference). Fork a baseline, then diverge. |
+| variant | `mna variants add <trip> --name "…" --start-date <date> --end-date <date> --adults <n> [--child-ages <a,b>]`, or `variants duplicate <trip> <var>` | a whole-trip **strategy** ("single base" vs "stopover + base"), not a tweak. Dates are required — exact, or the six flexible-date flags (see reference). **Always pass the party:** without it the variant is stored as one adult and its budget breakdown comes out wrong, with no error. Fork a baseline, then diverge; a duplicate keeps the party. |
 | destination | `mna destinations add <trip> <var> --place "<City, Country>" --start-date <date> --end-date <date>` | in travel order; `--return-to-home` marks the home leg; `destinations reorder … --order=k1,k2,k3` fixes order |
 | option | `mna options add <trip> <var> <dest> <kind> --from-json <file>`, then `mna options select …` | `<kind>` = `accommodation` \| `transport` \| `getting-around` |
 | event | `mna events add <trip> <var> --from-json <file>` | only if the user wants them — the app is not a day-by-day itinerary planner, and many users don't want one |
@@ -101,7 +101,7 @@ and break a long drive with a stopover. Attach each transport leg to the destina
 Set real data, not placeholders: exact coordinates on each option's `location`, per-destination
 dates, check-in/out, `--free-cancellation-until` on accommodation. Replace stale options rather
 than piling new ones on top. Write responses are thin — **re-fetch
-`mna trips show <tripId> --json`** and confirm the field you set actually persisted.
+`mna trips show <tripId> --all-options --json`** and confirm the field you set actually persisted. Without `--all-options` only the selected variant comes back, so a newly added one looks missing.
 
 ### 4. Compare end-to-end
 

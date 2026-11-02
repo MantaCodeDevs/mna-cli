@@ -8,8 +8,8 @@ the field shapes you can't guess. Examples below use neutral placeholders.
 
 ```
 trips        list | show <id> [--all-options] | create --name | edit <id> | delete <id> | share | unshare
-variants     add <trip> --name <dates…> [--notes] | duplicate <trip> <var>
-             edit <trip> <var> [--name --notes <dates…>] | select <trip> <var> | delete
+variants     add <trip> --name <dates…> [--adults --child-ages --no-children --notes] | duplicate <trip> <var>
+             edit <trip> <var> [--name --notes <dates…> --adults --child-ages --no-children] | select <trip> <var> | delete
 destinations add <trip> <var> --place [--start-date --end-date --notes --return-to-home]
              edit <trip> <var> <destKey> [--place --notes --start-date --end-date --return-to-home/--no-…]
              reorder <trip> <var> --order=k1,k2,k3 | delete <trip> <var> <destKey>
@@ -143,11 +143,42 @@ mna variants add <trip> --name "Flexible option" \
 `variants edit` takes the same flags; leave them off and the existing dates stay untouched.
 Switching a variant between the two shapes is just an edit with the other flag set.
 
+## Variant party — set it on create
+
+Each variant stores who is travelling, and its budget breakdown is worked out from that. Omit it
+on `variants add` and the variant is silently stored as **one adult**, so always pass the party the
+user gave you:
+
+```bash
+mna variants add <trip> --name "Family option" --start-date 2026-09-01 --end-date 2026-09-08 \
+  --adults 2 --child-ages 8,5
+mna variants add <trip> --name "Couple option" --start-date 2026-09-01 --end-date 2026-09-08 --adults 2
+```
+
+- `--adults` — whole number, at least 1.
+- `--child-ages` — one age per child, a whole number from 0 to 17 at the time of the trip; anyone
+  older counts as an adult. Comma-separated (`8,5`) or repeated. Needs `--adults` on `add`.
+- `--no-children` — adults only. On `edit`, this is how to remove children.
+
+To correct a variant, use `variants edit` with only the flags that changed:
+
+```bash
+mna variants edit <trip> <var> --adults 3
+mna variants edit <trip> <var> --child-ages 8,5,2
+mna variants edit <trip> <var> --no-children
+```
+
+The API's `participants` field replaces the whole party, so the CLI reads the current one and merges
+your change; children, adults and any stored room count you didn't name survive. With no party flag
+it isn't sent at all. `variants duplicate` copies the party. If a raw API body is ever needed, send
+the complete `{ adults, children: [{ age }], numberOfRooms? }`, without the `_id`s a read returns.
+
 ## Verify-after-write
 
 Mutation responses are intentionally thin (often just the new key). Confirm the state with
-`mna trips show <tripId> --json` and parse the field you changed. This is the reliable way to
-catch a silently-dropped field or an accidental duplicate create.
+`mna trips show <tripId> --all-options --json` and parse the field you changed. This is the reliable way to
+catch a silently-dropped field or an accidental duplicate create. Without `--all-options` the read
+returns only the selected variant, so a newly added or unselected one looks missing.
 
 ## Auth / config
 
