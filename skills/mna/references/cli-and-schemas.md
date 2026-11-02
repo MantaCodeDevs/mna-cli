@@ -13,8 +13,8 @@ variants     add <trip> --name <dates…> [--adults --child-ages --no-children -
 destinations add <trip> <var> --place [--start-date --end-date --notes --return-to-home]
              edit <trip> <var> <destKey> [--place --notes --start-date --end-date --return-to-home/--no-…]
              reorder <trip> <var> --order=k1,k2,k3 | delete <trip> <var> <destKey>
-options      add <trip> <var> <destKey> <kind> --from-json <file> [--free-cancellation-until <date>]
-             edit <trip> <var> <destKey> <kind> <optKey> [--from-json <file>] [--free-cancellation-until <date>]
+options      add <trip> <var> <destKey> <kind> --from-json <file> [--free-cancellation-until <date>] [--details <json>] [--photos <json>]
+             edit <trip> <var> <destKey> <kind> <optKey> [--from-json <file>] [--free-cancellation-until <date>] [--details <json>] [--photos <json>]
              select <trip> <var> <destKey> <kind> <optKey> | deselect <trip> <var> <destKey> <kind>
              delete <trip> <var> <destKey> <kind> <optKey>
 events       add <trip> <var> --from-json <file> | edit <trip> <var> <eventKey> --from-json
@@ -65,6 +65,38 @@ property level, which is not what a user means by "an apartment with a kitchen".
 Put ratings and facilities in these fields rather than in `notes` — `mna trips show` renders them,
 and `notes` should carry what no field covers. `type` and `roomDetails` come back on read too.
 
+#### `stayDetails` and `photos`
+
+Set these inside the `--from-json` body, or with the flags on `options add` and `options edit`:
+
+```bash
+mna options edit <trip> <var> <destKey> accommodation <optKey> \
+  --details '{"highlight":"Only one with a private sauna","kitchen":"private","parking":"Garage, book ahead","sourceNote":"Listing page, Oct 2026","author":"agent"}' \
+  --photos '[{"url":"https://…/balcony.jpg","credit":"Owner"}]'
+```
+
+All `stayDetails` properties are optional. Add one only when it helps choose between this trip's
+options, and leave out anything equally true of all of them, or unknown.
+
+| Property | Value |
+|---|---|
+| `highlight` | one line, up to 160 characters |
+| `worthChecking` | list of up to 10 things to confirm before booking; hidden on share links that hide notes |
+| `kitchen` | `private` \| `shared` \| `none` |
+| `breakfast` | `included` \| `available` \| `none` |
+| `skiBack` | `yes` \| `partly` \| `no`, only when confirmed |
+| `bookability` | `bookable` \| `on_request` \| `price_unconfirmed` |
+| `author` | `owner` \| `agent` \| `sonnet`; agents set `agent` |
+| `bedrooms`, `bathrooms`, `maxGuests`, `sizeInM2` | numbers |
+| `dinner`, `bedLayout`, `skiBackNote`, `mainLiftName`, `skiStorage`, `kidsFacilities`, `wellness`, `pool`, `beach`, `parking`, `noise`, `view`, `airConditioning`, `laundry`, `accessibility`, `pets`, `sourceNote` | text, up to 300 characters |
+
+On an edit, only the `stayDetails` properties you send change. `null` clears one, and
+`--details null` clears them all. `--photos` replaces the whole list, up to 12 photos, and
+`--photos null` clears it. Unknown properties are rejected.
+
+`photos` take `{ "url", "credit"?, "creditUrl"? }`. Each URL must be a directly linkable http or
+https image that the owner may use.
+
 ### transport
 ```json
 {
@@ -92,6 +124,15 @@ home-return drive on the `--return-to-home` destination so the per-variant total
   "totalCost": 0, "currency": "EUR", "link": "…", "notes": "…",
   "location": { "name": "Old Town", "formattedAddress": "…", "coordinates": { "lat": 0.0, "lng": 0.0 } } }
 ```
+
+When the group has a real choice of price, add `"priceOptions": [{ "label": "4-day pass", "totalCost": 200 }, { "label": "6-day pass", "totalCost": 280 }]`,
+up to 10, in the event's `currency`. On `events edit`, the list is replaced, and `null` clears it.
+
+## Trip budget
+
+`mna trips edit <trip> --budget '{"amount":4000,"currency":"EUR","appliesTo":"stay"}'`. `appliesTo`
+is `stay` or `total`. Only the trip owner can change it, `--budget null` clears it, and it never
+appears on share links. Set it only when the owner has stated a budget.
 
 ## Location shape — a non-obvious gotcha
 

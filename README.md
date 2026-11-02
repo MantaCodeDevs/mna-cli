@@ -206,7 +206,7 @@ Every command supports `--json` for piping into `jq` or Claude.
 | `mna trips list [--status=planning\|ready\|finished\|cancelled] [--include-example]` | List trips. |
 | `mna trips show <tripId> [--all-options]` | Show one trip in detail: each variant's party, plus an accommodation table per variant (cost, guest rating in its source scale, facilities). By default only the selected variant and its selected options; `--all-options` adds the unselected variants and options. |
 | `mna trips create --name <name> [--cover-photo <url>]` | Create a new trip. |
-| `mna trips edit <tripId> [--name=...] [--cover-photo=...] [--status=...]` | Update trip-level fields. |
+| `mna trips edit <tripId> [--name=...] [--cover-photo=...] [--status=...] [--budget=<json>]` | Update trip-level fields. `--budget` is owner only, and `--budget null` clears it. |
 | `mna trips delete <tripId> [--yes]` | Delete a trip permanently. |
 | `mna trips share <tripId>` | Generate a shareable link for the trip. |
 | `mna trips unshare <tripId>` | Revoke all share links. |
@@ -268,8 +268,8 @@ selected variant; add `--all-options` to include the other variants.
 
 | Command | Description |
 |---|---|
-| `mna options add <tripId> <variantId> <destinationKey> <kind> --from-json=<file> [--free-cancellation-until=<date>]` | Add an option from JSON. `--free-cancellation-until` (accommodation only) merges into the body. |
-| `mna options edit <tripId> <variantId> <destinationKey> <kind> <optionKey> [--from-json=<file>] [--free-cancellation-until=<date>]` | Edit an option. For accommodation, `--free-cancellation-until` alone updates the date without a JSON file. |
+| `mna options add <tripId> <variantId> <destinationKey> <kind> --from-json=<file> [--free-cancellation-until=<date>] [--details=<json>] [--photos=<json>]` | Add an option from JSON. `--free-cancellation-until`, `--details` and `--photos` (accommodation only) merge into the body. |
+| `mna options edit <tripId> <variantId> <destinationKey> <kind> <optionKey> [--from-json=<file>] [--free-cancellation-until=<date>] [--details=<json>] [--photos=<json>]` | Edit an option. For accommodation, each flag works alone, without a JSON file. `--details` changes only the properties it names; `--photos` replaces the list. |
 | `mna options delete <tripId> <variantId> <destinationKey> <kind> <optionKey> [--yes]` | Delete an option. |
 | `mna options select <tripId> <variantId> <destinationKey> <kind> <optionKey>` | Select an option. |
 | `mna options deselect <tripId> <variantId> <destinationKey> <kind>` | Deselect the current option. |

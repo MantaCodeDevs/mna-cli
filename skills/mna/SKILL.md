@@ -155,6 +155,18 @@ The app renders and totals these fields; misuse degrades the plan quietly.
   independently, and can't be sorted or compared.
 - **Ratings keep their source's scale.** Store `externalRating.scale` beside the score (out of
   10, out of 5) and quote the pair. Never normalise, and never rank a /10 score against a /5 one.
+- **`stayDetails` exists to help the group choose between this trip's options.** Add a property
+  only when it separates this option from the others. Never record what is equally true of all
+  of them: if every option is central, say nothing about being central. Never invent or infer a
+  fact: leave it out when unknown, and put what still needs confirming in `worthChecking`. Say
+  where a fact came from in `sourceNote` when that isn't obvious, and set `author` to `agent`.
+  `skiBack` needs the listing, the owner or a piste map behind it, never a guess from distance.
+  Keep prices out of these fields, because they appear on share links that hide prices.
+- **`photos` are only images the owner may use**: their own, or ones the property allows to be
+  reused. Don't copy a gallery from a booking site or from search results.
+- **`budget` is the owner's number.** Set it only when the owner has stated one.
+- **`priceOptions` on an event are real alternatives** with real prices, such as 4-day and 6-day
+  ski passes. `totalCost` stays the price the totals use.
 - **The user's edits are authoritative.** A hand-corrected price, a fixed location or spelling —
   keep it, and don't revert to the scraped value on the next sync.
 

@@ -6,6 +6,7 @@ import { colors } from '../../render/colors'
 import { reportAndExit, requireApiKey } from '../../util/errors'
 import { readJsonObject } from '../../util/json-file'
 import { applyFreeCancellation } from './free-cancellation'
+import { applyStayFlags } from './stay-details'
 
 const KINDS = ['accommodation', 'transport', 'getting-around'] as const
 type Kind = (typeof KINDS)[number]
@@ -40,6 +41,16 @@ export const optionsAddCommand = defineCommand({
             description:
                 'Accommodation only: free-cancellation deadline (YYYY-MM-DD or ISO date-time). Merged into the body.',
         },
+        details: {
+            type: 'string',
+            description:
+                "Accommodation only: stayDetails as JSON, e.g. '{\"highlight\":\"...\",\"kitchen\":\"private\"}'. Only facts that help choose between this trip's options.",
+        },
+        photos: {
+            type: 'string',
+            description:
+                'Accommodation only: photos as a JSON array of { "url", "credit"? }. Only images the owner may use.',
+        },
         json: { type: 'boolean', default: false, description: 'Output as JSON.' },
     },
     async run({ args }) {
@@ -47,6 +58,7 @@ export const optionsAddCommand = defineCommand({
             assertKind(args.kind)
             const body = await readJsonObject(args['from-json'])
             applyFreeCancellation(body, args['free-cancellation-until'], args.kind)
+            applyStayFlags(body, { details: args.details, photos: args.photos }, args.kind)
 
             const creds = await loadCredentials()
             const apiKey = resolveApiKey(creds)
