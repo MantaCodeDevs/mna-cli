@@ -5,6 +5,7 @@ import { renderJson } from '../../render/json'
 import { renderTable } from '../../render/table'
 import { accommodationRows } from '../../render/accommodation'
 import { colors } from '../../render/colors'
+import { formatParty } from '../../render/party'
 import { reportAndExit, requireApiKey } from '../../util/errors'
 
 export const tripsShowCommand = defineCommand({
@@ -61,12 +62,14 @@ export const tripsShowCommand = defineCommand({
             renderTable({
                 columns: [
                     { header: 'Variant', key: 'name', maxWidth: 30 },
+                    { header: 'Party', key: 'party' },
                     { header: 'Destinations', key: 'destinationsCount' },
                     { header: 'Events', key: 'eventsCount' },
                 ],
                 rows:
                     data.variants?.map((v) => ({
                         name: v.name,
+                        party: formatParty(v.participants),
                         destinationsCount: v.destinations?.length ?? 0,
                         eventsCount: v.eventsToAttend?.length ?? 0,
                     })) ?? [],

@@ -204,7 +204,7 @@ Every command supports `--json` for piping into `jq` or Claude.
 | Command | Description |
 |---|---|
 | `mna trips list [--status=planning\|ready\|finished\|cancelled] [--include-example]` | List trips. |
-| `mna trips show <tripId> [--all-options]` | Show one trip in detail, with an accommodation table per variant (cost, guest rating in its source scale, facilities). `--all-options` adds the unselected options. |
+| `mna trips show <tripId> [--all-options]` | Show one trip in detail: each variant's party, plus an accommodation table per variant (cost, guest rating in its source scale, facilities). By default only the selected variant and its selected options; `--all-options` adds the unselected variants and options. |
 | `mna trips create --name <name> [--cover-photo <url>]` | Create a new trip. |
 | `mna trips edit <tripId> [--name=...] [--cover-photo=...] [--status=...]` | Update trip-level fields. |
 | `mna trips delete <tripId> [--yes]` | Delete a trip permanently. |
@@ -215,9 +215,9 @@ Every command supports `--json` for piping into `jq` or Claude.
 
 | Command | Description |
 |---|---|
-| `mna variants add <tripId> --name <name> <date flags> [--notes=...]` | Add a new variant. Dates are required — see below. |
-| `mna variants duplicate <tripId> <variantId>` | Duplicate a variant. |
-| `mna variants edit <tripId> <variantId> [--name=...] [--notes=...] [<date flags>]` | Update variant fields. Omitting the date flags leaves the dates alone. |
+| `mna variants add <tripId> --name <name> <date flags> [<party flags>] [--notes=...]` | Add a new variant. Dates are required, and the party defaults to one adult — see below. |
+| `mna variants duplicate <tripId> <variantId>` | Duplicate a variant, party included. |
+| `mna variants edit <tripId> <variantId> [--name=...] [--notes=...] [<date flags>] [<party flags>]` | Update variant fields. Omitting the date or party flags leaves those alone. |
 | `mna variants select <tripId> <variantId>` | Set the selected variant. |
 | `mna variants delete <tripId> <variantId> [--yes]` | Delete a variant. |
 
@@ -234,6 +234,26 @@ mna variants add <tripId> --name "Flexible option" \
   --return-not-before 2026-09-10 --return-not-after 2026-09-12 \
   --min-nights 7 --max-nights 10
 ```
+
+A variant also records who is travelling, and the budget breakdown is worked out from it. **Set it
+whenever the trip is not solo:** a variant created without it is stored as one adult.
+
+- `--adults=<n>` — at least 1.
+- `--child-ages=<a,b>` — one age per child, 0–17, comma-separated or repeated. Requires `--adults` on `add`.
+- `--no-children` — an adults-only party; on `edit`, removes any children already set.
+
+```bash
+mna variants add <tripId> --name "Family option" --start-date 2026-09-01 --end-date 2026-09-08 \
+  --adults 2 --child-ages 8,5
+mna variants edit <tripId> <variantId> --adults 3         # keeps the children
+mna variants edit <tripId> <variantId> --child-ages 8,5,2  # keeps the adults
+mna variants edit <tripId> <variantId> --no-children
+```
+
+The API replaces the whole party on every write, so `variants edit` reads the current one first and
+changes only what you named. Leave the flags off and the party stays untouched. `variants duplicate`
+copies the party along with everything else. To see it, `mna trips show` has a Party column for the
+selected variant; add `--all-options` to include the other variants.
 
 ### Destinations
 
@@ -311,7 +331,7 @@ mna variants add <tripId> --name "Flexible option" \
 
 All command groups (auth/keys/config, trips, variants, destinations, options, events, access, vote/votes, goals, collections) are wired, CI-tested, and backed by live `/v1/` endpoints in production. Pre-1.0 means the public API contract is still allowed to break under `/v1/`. Once `1.0.0` ships, `/v1/` becomes stable; breaking changes require `/v2/`.
 
-The contract of record is `https://api.mynextadventure.cloud/v1/openapi.json`. If a write seems to "succeed" but a field doesn't stick, re-fetch with `mna trips show <id> --json` to confirm — and check the request body shape against the OpenAPI schema for that endpoint.
+The contract of record is `https://api.mynextadventure.cloud/v1/openapi.json`. If a write seems to "succeed" but a field doesn't stick, re-fetch with `mna trips show <id> --all-options --json` to confirm — and check the request body shape against the OpenAPI schema for that endpoint.
 
 ## Configuration
 
