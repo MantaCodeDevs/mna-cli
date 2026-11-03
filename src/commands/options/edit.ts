@@ -51,6 +51,11 @@ export const optionsEditCommand = defineCommand({
             description:
                 'Accommodation only: photos as a JSON array of { "url", "credit"? }, replacing the list; null clears it. Only images the owner may use.',
         },
+        website: {
+            type: 'string',
+            description:
+                "Accommodation only: the place's own official website, not a booking site. Photos from it may be linked automatically, credited to the site. null clears it.",
+        },
         json: { type: 'boolean', default: false, description: 'Output as JSON.' },
     },
     async run({ args }) {
@@ -61,16 +66,17 @@ export const optionsEditCommand = defineCommand({
                 args['free-cancellation-until'],
                 args.details,
                 args.photos,
+                args.website,
             ].some((flag) => flag !== undefined)
             if (!hasFlag) {
                 throw new Error(
-                    'Specify at least one of --from-json, --free-cancellation-until, --details, --photos.',
+                    'Specify at least one of --from-json, --free-cancellation-until, --details, --photos, --website.',
                 )
             }
             const body =
                 args['from-json'] !== undefined ? await readJsonObject(args['from-json']) : {}
             applyFreeCancellation(body, args['free-cancellation-until'], args.kind)
-            applyStayFlags(body, { details: args.details, photos: args.photos }, args.kind)
+            applyStayFlags(body, { details: args.details, photos: args.photos, website: args.website }, args.kind)
 
             const creds = await loadCredentials()
             const apiKey = resolveApiKey(creds)

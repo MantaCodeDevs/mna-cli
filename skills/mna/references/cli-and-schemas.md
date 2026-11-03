@@ -13,8 +13,8 @@ variants     add <trip> --name <dates…> [--adults --child-ages --no-children -
 destinations add <trip> <var> --place [--start-date --end-date --notes --return-to-home]
              edit <trip> <var> <destKey> [--place --notes --start-date --end-date --return-to-home/--no-…]
              reorder <trip> <var> --order=k1,k2,k3 | delete <trip> <var> <destKey>
-options      add <trip> <var> <destKey> <kind> --from-json <file> [--free-cancellation-until <date>] [--details <json>] [--photos <json>]
-             edit <trip> <var> <destKey> <kind> <optKey> [--from-json <file>] [--free-cancellation-until <date>] [--details <json>] [--photos <json>]
+options      add <trip> <var> <destKey> <kind> --from-json <file> [--free-cancellation-until <date>] [--details <json>] [--photos <json>] [--website <url>]
+             edit <trip> <var> <destKey> <kind> <optKey> [--from-json <file>] [--free-cancellation-until <date>] [--details <json>] [--photos <json>] [--website <url>]
              select <trip> <var> <destKey> <kind> <optKey> | deselect <trip> <var> <destKey> <kind>
              delete <trip> <var> <destKey> <kind> <optKey>
 events       add <trip> <var> --from-json <file> | edit <trip> <var> <eventKey> --from-json
@@ -91,7 +91,7 @@ options, and leave out anything equally true of all of them, or unknown.
 | `dinner`, `bedLayout`, `skiBackNote`, `mainLiftName`, `skiStorage`, `kidsFacilities`, `wellness`, `pool`, `beach`, `parking`, `noise`, `view`, `airConditioning`, `laundry`, `accessibility`, `pets`, `sourceNote` | text, up to 300 characters |
 
 On an edit, only the `stayDetails` properties you send change. `null` clears one, and
-`--details null` clears them all. `--photos` replaces the whole list, up to 12 photos, and
+`--website` is the place's own official site, never a booking or listing site; leave it out if you can't confirm it. Photos from it may then be linked automatically, credited to the site. `--website null` clears it. `--details null` clears them all. `--photos` replaces the whole list, up to 12 photos, and
 `--photos null` clears it. Unknown properties are rejected.
 
 `photos` take `{ "url", "credit"?, "creditUrl"? }`. Each URL must be a directly linkable http or

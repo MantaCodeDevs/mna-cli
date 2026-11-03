@@ -51,6 +51,11 @@ export const optionsAddCommand = defineCommand({
             description:
                 'Accommodation only: photos as a JSON array of { "url", "credit"? }. Only images the owner may use.',
         },
+        website: {
+            type: 'string',
+            description:
+                "Accommodation only: the place's own official website, not a booking site. Photos from it may be linked automatically, credited to the site.",
+        },
         json: { type: 'boolean', default: false, description: 'Output as JSON.' },
     },
     async run({ args }) {
@@ -58,7 +63,7 @@ export const optionsAddCommand = defineCommand({
             assertKind(args.kind)
             const body = await readJsonObject(args['from-json'])
             applyFreeCancellation(body, args['free-cancellation-until'], args.kind)
-            applyStayFlags(body, { details: args.details, photos: args.photos }, args.kind)
+            applyStayFlags(body, { details: args.details, photos: args.photos, website: args.website }, args.kind)
 
             const creds = await loadCredentials()
             const apiKey = resolveApiKey(creds)

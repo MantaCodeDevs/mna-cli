@@ -8,6 +8,20 @@ describe('applyStayFlags', () => {
         expect(body).toEqual({ name: 'Villa' })
     })
 
+    test('sets and clears the website', () => {
+        const body: Record<string, unknown> = {}
+        applyStayFlags(body, { website: 'https://hotel.example/' }, 'accommodation')
+        expect(body.website).toBe('https://hotel.example/')
+
+        applyStayFlags(body, { website: 'null' }, 'accommodation')
+        expect(body.website).toBeNull()
+    })
+
+    test('refuses a website that is not a web address, and other kinds', () => {
+        expect(() => applyStayFlags({}, { website: 'javascript:alert(1)' }, 'accommodation')).toThrow('--website')
+        expect(() => applyStayFlags({}, { website: 'https://hotel.example/' }, 'transport')).toThrow('accommodation')
+    })
+
     test('sets stayDetails and photos', () => {
         const body: Record<string, unknown> = {}
         applyStayFlags(
