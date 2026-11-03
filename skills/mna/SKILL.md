@@ -181,3 +181,5 @@ The app renders and totals these fields; misuse degrades the plan quietly.
   events, access/voting, goals, collections).
 - **`https://api.mynextadventure.cloud/v1/openapi.json`** — the contract of record when a body
   shape is unclear.
+
+When creating a trip, always set a cover photo that fits it, with `--cover-photo` or `coverPhoto`: one of northernlight, beach, mountain, town, snow, sea, road, jungle, desert, city, balaton, london, or an image URL the owner may use. A trip without one gets a generic photo.

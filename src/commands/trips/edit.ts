@@ -18,7 +18,7 @@ export const tripsEditCommand = defineCommand({
     args: {
         tripId: { type: 'positional', description: 'Trip ID.' },
         name: { type: 'string', description: 'New name.' },
-        'cover-photo': { type: 'string', description: 'New cover photo URL.' },
+        'cover-photo': { type: 'string', description: 'New cover photo: one of northernlight, beach, mountain, town, snow, sea, road, jungle, desert, city, balaton, london, or an http or https image URL.' },
         status: { type: 'string', description: `New status (${VALID_STATUSES.join('|')}).` },
         budget: {
             type: 'string',

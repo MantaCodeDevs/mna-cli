@@ -9,7 +9,7 @@ export const tripsCreateCommand = defineCommand({
     meta: { name: 'create', description: 'Create a new trip.' },
     args: {
         name: { type: 'string', required: true, description: 'Trip name.' },
-        'cover-photo': { type: 'string', description: 'Cover photo URL.' },
+        'cover-photo': { type: 'string', description: 'Cover photo, which you should always set: one of northernlight, beach, mountain, town, snow, sea, road, jungle, desert, city, balaton, london, or an http or https image URL.' },
         json: { type: 'boolean', default: false, description: 'Output as JSON.' },
     },
     async run({ args }) {
