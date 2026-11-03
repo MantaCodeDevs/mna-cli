@@ -45,3 +45,25 @@ describe('options edit — free-cancellation flag', () => {
         expect(captured?.body).toEqual({ freeCancellationUntil: '2026-07-02T00:00:00.000Z' })
     })
 })
+
+describe('options edit — stay details flags', () => {
+    test('builds the body from --details and --photos alone', async () => {
+        await run({
+            tripId: 't',
+            variantId: 'v',
+            destinationKey: 'd',
+            kind: 'accommodation',
+            optionKey: 'o1',
+            details: '{"parking":"Garage","noise":null}',
+            photos: '[{"url":"https://example.com/a.jpg"}]',
+            json: false,
+        })
+
+        expect(captured?.method).toBe('PATCH')
+        expect(captured?.url).toContain('/options/accommodation/o1')
+        expect(captured?.body).toEqual({
+            stayDetails: { parking: 'Garage', noise: null },
+            photos: [{ url: 'https://example.com/a.jpg' }],
+        })
+    })
+})

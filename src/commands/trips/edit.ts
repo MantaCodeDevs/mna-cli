@@ -4,6 +4,7 @@ import { loadCredentials, resolveApiKey, resolveBaseUrl } from '../../auth/crede
 import { renderJson } from '../../render/json'
 import { colors } from '../../render/colors'
 import { reportAndExit, requireApiKey } from '../../util/errors'
+import { parseJsonObjectFlag } from '../../util/json-flag'
 
 const VALID_STATUSES = ['planning', 'ready', 'finished', 'cancelled'] as const
 type TripStatus = (typeof VALID_STATUSES)[number]
@@ -19,6 +20,11 @@ export const tripsEditCommand = defineCommand({
         name: { type: 'string', description: 'New name.' },
         'cover-photo': { type: 'string', description: 'New cover photo URL.' },
         status: { type: 'string', description: `New status (${VALID_STATUSES.join('|')}).` },
+        budget: {
+            type: 'string',
+            description:
+                'Owner only: budget as JSON, e.g. \'{"amount":4000,"currency":"EUR","appliesTo":"stay"}\' (appliesTo: stay|total), or null to clear it.',
+        },
         json: { type: 'boolean', default: false, description: 'Output as JSON.' },
     },
     async run({ args }) {
@@ -32,8 +38,11 @@ export const tripsEditCommand = defineCommand({
                 }
                 updates.status = args.status
             }
+            if (args.budget !== undefined) {
+                updates.budget = parseJsonObjectFlag(args.budget, '--budget')
+            }
             if (Object.keys(updates).length === 0) {
-                throw new Error('Specify at least one of --name, --cover-photo, --status.')
+                throw new Error('Specify at least one of --name, --cover-photo, --status, --budget.')
             }
 
             const creds = await loadCredentials()
