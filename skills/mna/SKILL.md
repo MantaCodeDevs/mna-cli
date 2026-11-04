@@ -98,6 +98,11 @@ Order legs to avoid backtracking, keep far-flung sights as day-trips rather than
 and break a long drive with a stopover. Attach each transport leg to the destination it
 *arrives at*, and put the journey home on the return-to-home destination so totals stay clean.
 
+Every destination needs a getting-around option, selected: add how the person will actually get
+around there, such as `publicTransport` in a city, `rentalCar` where they'll drive, or `walk` where
+everything is close. The app uses it for the travel time from each stay to the trip's events. If
+the cost isn't known, use `totalCost: 0` with the currency.
+
 Set real data, not placeholders: exact coordinates on each option's `location`, per-destination
 dates, check-in/out, `--free-cancellation-until` on accommodation. Replace stale options rather
 than piling new ones on top. Write responses are thin — **re-fetch
@@ -115,7 +120,10 @@ rating and facilities, so a shortlist is comparable without re-reading your own 
 ### 5. Decide, select, share
 
 `mna variants select <trip> <var>` and `mna options select …` record the decisions — a plan with
-nothing selected has no totals. Then `mna trips share <trip>` for a link, `mna access invite`
+nothing selected has no totals. Once the plan is ready, give the person `reviewUrl` from
+`mna trips show <trip> --json`: it opens the trip's Review screen, and needs them to be logged in.
+Set `isBooked: true` on a stay with `mna options edit` only after it has actually been reserved,
+not when it's just the favourite. Then `mna trips share <trip>` for a link, `mna access invite`
 for collaborators, and `mna vote option|event` when a group is choosing.
 
 Keep a lightweight `PLAN.md` in the working directory alongside the app: IDs, decisions made,
